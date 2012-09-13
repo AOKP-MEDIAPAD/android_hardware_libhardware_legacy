@@ -302,9 +302,7 @@ int wifi_load_driver()
     snprintf(module_arg2, sizeof(module_arg2), "%s%s", DRIVER_MODULE_ARG, type == NULL ? "" : type);
 
     if (insmod(DRIVER_MODULE_PATH, module_arg2) < 0) {
-#endif
-
-#ifdef HUAWEI_WIFI
+#elifdef HUAWEI_WIFI
     snprintf(module_arg2, sizeof(module_arg2), "%s wlan_mac=%s", DRIVER_MODULE_ARG, huawei_mac);
 
     if (insmod(DRIVER_MODULE_PATH, module_arg2) < 0) {
