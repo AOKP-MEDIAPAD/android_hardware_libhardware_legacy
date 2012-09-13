@@ -288,7 +288,7 @@ int wifi_load_driver()
     char* type = get_samsung_wifi_type();
 #endif
 
-#ifdef HUAWIE_WIFI
+#ifdef HUAWEI_WIFI
     char* huawei_mac = get_huawei_mac();
 #endif
 
