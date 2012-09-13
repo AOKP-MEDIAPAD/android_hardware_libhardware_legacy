@@ -139,6 +139,24 @@ static int is_primary_interface(const char *ifname)
     return 0;
 }
 
+#ifdef HUAWEI_WIFI
+char* get_huawei_mac()
+{
+	int i, j;
+	char t,mac[18]="",serialno_chr[18]="";
+    property_get("ro.serialno", serialno_chr, "f6r6rd1212541368");
+      
+    for(i = 0, j = strlen(serialno_chr)-1; i < j; ++i, --j) {
+        t = serialno_chr[i];
+        serialno_chr[i] = serialno_chr[j];
+        serialno_chr[j] = t;
+    }
+        
+    strncpy(mac, serialno_chr, 12);
+    return mac;
+}
+#endif
+
 #ifdef SAMSUNG_WIFI
 char* get_samsung_wifi_type()
 {
@@ -265,8 +283,13 @@ int wifi_load_driver()
     char driver_status[PROPERTY_VALUE_MAX];
     int count = 100; /* wait at most 20 seconds for completion */
     char module_arg2[256];
+	
 #ifdef SAMSUNG_WIFI
     char* type = get_samsung_wifi_type();
+#endif
+
+#ifdef HUAWIE_WIFI
+    char* huawei_mac = get_huawei_mac();
 #endif
 
 #ifdef WIFI_EXT_MODULE_PATH
@@ -277,6 +300,14 @@ int wifi_load_driver()
 
 #ifdef SAMSUNG_WIFI
     snprintf(module_arg2, sizeof(module_arg2), "%s%s", DRIVER_MODULE_ARG, type == NULL ? "" : type);
+
+    if (insmod(DRIVER_MODULE_PATH, module_arg2) < 0) {
+#else
+    if (insmod(DRIVER_MODULE_PATH, DRIVER_MODULE_ARG) < 0) {
+#endif
+
+#ifdef HUAWEI_WIFI
+    snprintf(module_arg2, sizeof(module_arg2), "%s wlan_mac=%s", DRIVER_MODULE_ARG, huawei_mac);
 
     if (insmod(DRIVER_MODULE_PATH, module_arg2) < 0) {
 #else
