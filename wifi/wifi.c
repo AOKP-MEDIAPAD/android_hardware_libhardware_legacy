@@ -142,17 +142,19 @@ static int is_primary_interface(const char *ifname)
 #ifdef HUAWEI_WIFI
 char* get_huawei_mac()
 {
-	int i, j;
-	char t,mac[18]="",serialno_chr[18]="";
+    int i, j;
+    char t,mac[18]="",serialno_chr[18]="";
     property_get("ro.serialno", serialno_chr, "f6r6rd1212541368");
-      
+    ALOGE("HUAWEI SERIAL : %s", serialno_chr);
+    
     for(i = 0, j = strlen(serialno_chr)-1; i < j; ++i, --j) {
         t = serialno_chr[i];
         serialno_chr[i] = serialno_chr[j];
         serialno_chr[j] = t;
     }
-        
+
     strncpy(mac, serialno_chr, 12);
+    ALOGE("HUAWEI WIFI MAC : %s", mac);
     return mac;
 }
 #endif
@@ -304,7 +306,7 @@ int wifi_load_driver()
     if (insmod(DRIVER_MODULE_PATH, module_arg2) < 0) {
 #elifdef HUAWEI_WIFI
     snprintf(module_arg2, sizeof(module_arg2), "%s wlan_mac=%s", DRIVER_MODULE_ARG, huawei_mac);
-
+    ALOGE("HUAWEI MODULE ARG: %s", module_arg2);
     if (insmod(DRIVER_MODULE_PATH, module_arg2) < 0) {
 #else
     if (insmod(DRIVER_MODULE_PATH, DRIVER_MODULE_ARG) < 0) {
