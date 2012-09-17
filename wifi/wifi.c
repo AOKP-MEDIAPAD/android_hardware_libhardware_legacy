@@ -139,26 +139,6 @@ static int is_primary_interface(const char *ifname)
     return 0;
 }
 
-#ifdef HUAWEI_WIFI
-char* get_huawei_mac()
-{
-    int i, j;
-    char t,mac[18]="",serialno_chr[18]="";
-    property_get("ro.serialno", serialno_chr, "f6r6rd1212541368");
-    ALOGE("HUAWEI SERIAL : %s", serialno_chr);
-    
-    for(i = 0, j = strlen(serialno_chr)-1; i < j; ++i, --j) {
-        t = serialno_chr[i];
-        serialno_chr[i] = serialno_chr[j];
-        serialno_chr[j] = t;
-    }
-
-    strncpy(mac, serialno_chr, 12);
-    ALOGE("HUAWEI WIFI MAC : %s", mac);
-    return mac;
-}
-#endif
-
 #ifdef SAMSUNG_WIFI
 char* get_samsung_wifi_type()
 {
@@ -290,10 +270,6 @@ int wifi_load_driver()
     char* type = get_samsung_wifi_type();
 #endif
 
-#ifdef HUAWEI_WIFI
-    char* huawei_mac = get_huawei_mac();
-#endif
-
 #ifdef WIFI_EXT_MODULE_PATH
     if (insmod(EXT_MODULE_PATH, EXT_MODULE_ARG) < 0)
         return -1;
@@ -301,15 +277,21 @@ int wifi_load_driver()
 #endif
 
 #ifdef SAMSUNG_WIFI
-    snprintf(module_arg2, sizeof(module_arg2), "%s%s", DRIVER_MODULE_ARG, type == NULL ? "" : type);
+	snprintf(module_arg2, sizeof(module_arg2), "%s%s", DRIVER_MODULE_ARG, type == NULL ? "" : type);
 
-    if (insmod(DRIVER_MODULE_PATH, module_arg2) < 0) {
-#elifdef HUAWEI_WIFI
-    snprintf(module_arg2, sizeof(module_arg2), "%s wlan_mac=%s", DRIVER_MODULE_ARG, huawei_mac);
-    ALOGE("HUAWEI MODULE ARG: %s", module_arg2);
-    if (insmod(DRIVER_MODULE_PATH, module_arg2) < 0) {
+	if (insmod(DRIVER_MODULE_PATH, module_arg2) < 0) {
 #else
-    if (insmod(DRIVER_MODULE_PATH, DRIVER_MODULE_ARG) < 0) {
+	ALOGW("DRIVER MODULE ARG");
+	#ifdef HUAWEI_WIFI
+		char serialno[PROPERTY_VALUE_MAX];
+		char huawei_module_arg[256];
+		property_get("ro.serialno", serialno, "f6r6rd1212541368");
+		snprintf(huawei_module_arg, sizeof(huawei_module_arg), "%s wlan_mac=%02x%02x%02x%02x%02x%02x", DRIVER_MODULE_ARG, serialno[5], serialno[6], serialno[7], serialno[8], serialno[9], serialno[10]);
+		ALOGW("HUAWEI WIFI DRIVER MODULE ARG: %s", huawei_module_arg);
+		if (insmod(DRIVER_MODULE_PATH, huawei_module_arg) < 0) {
+	#else
+		if (insmod(DRIVER_MODULE_PATH, DRIVER_MODULE_ARG) < 0) {
+	#endif
 #endif
 
 #ifdef WIFI_EXT_MODULE_NAME
