@@ -290,7 +290,7 @@ int wifi_load_driver()
 		property_get("wlan.mac", wlan_mac, "");
 		property_get("ro.serialno", serialno, "f6r6rd1212541368");
 		
-		if(wlan_mac=="")		
+		if(strlen(wlan_mac) == 0)		
 			snprintf(huawei_module_arg, sizeof(huawei_module_arg), "%s wlan_mac=%02x%02x%02x%02x%02x%02x", DRIVER_MODULE_ARG, serialno[5], serialno[6], serialno[7], serialno[8], serialno[9], serialno[10]);
 		else
 			snprintf(huawei_module_arg, sizeof(huawei_module_arg), "%s wlan_mac=%s", DRIVER_MODULE_ARG, wlan_mac);	
