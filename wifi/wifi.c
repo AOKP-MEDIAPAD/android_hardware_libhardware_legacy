@@ -285,15 +285,21 @@ int wifi_load_driver()
 	#ifdef HUAWEI_WIFI
 		char wlan_mac[PROPERTY_VALUE_MAX];
 		char serialno[PROPERTY_VALUE_MAX];
+		char wlan_random_mac[PROPERTY_VALUE_MAX];
 		char huawei_module_arg[256];
-		//custome mac
+		
+		//custom mac
 		property_get("wlan.mac", wlan_mac, "");
+		property_get("wlan.random", wlan_random_mac, "false");
 		property_get("ro.serialno", serialno, "f6r6rd1212541368");
 		
-		if(strlen(wlan_mac) == 0)		
-			snprintf(huawei_module_arg, sizeof(huawei_module_arg), "%s wlan_mac=%02x%02x%02x%02x%02x%02x", DRIVER_MODULE_ARG, serialno[5], serialno[6], serialno[7], serialno[8], serialno[9], serialno[10]);
+		if(strcmp(wlan_random_mac,"false") == 0)
+			if(strlen(wlan_mac) == 0 && )		
+				snprintf(huawei_module_arg, sizeof(huawei_module_arg), "%s wlan_mac=%02x%02x%02x%02x%02x%02x", DRIVER_MODULE_ARG, serialno[5], serialno[6], serialno[7], serialno[8], serialno[9], serialno[10]);
+			else
+				snprintf(huawei_module_arg, sizeof(huawei_module_arg), "%s wlan_mac=%s", DRIVER_MODULE_ARG, wlan_mac);	
 		else
-			snprintf(huawei_module_arg, sizeof(huawei_module_arg), "%s wlan_mac=%s", DRIVER_MODULE_ARG, wlan_mac);	
+			snprintf(huawei_module_arg, sizeof(huawei_module_arg), "%s", DRIVER_MODULE_ARG);	
 
 		ALOGW("HUAWEI WIFI DRIVER MODULE ARG: %s", huawei_module_arg);
 		if (insmod(DRIVER_MODULE_PATH, huawei_module_arg) < 0) {
