@@ -289,8 +289,8 @@ int wifi_load_driver()
 		char huawei_module_arg[256];
 		
 		//custom mac
-		property_get("wlan.mac", wlan_mac, "");
-		property_get("wlan.random", wlan_random_mac, "false");
+		property_get("persist.wlan.mac", wlan_mac, "");
+		property_get("persist.wlan.random", wlan_random_mac, "false");
 		property_get("ro.serialno", serialno, "f6r6rd1212541368");
 		
 		if(strcmp(wlan_random_mac,"false") == 0)
